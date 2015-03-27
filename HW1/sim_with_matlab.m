@@ -12,6 +12,8 @@ h = 0.01;
 
 K = 10;
 T = 0.1;
+st=1000;
+t=0:h:st;
 
 F = Kp + Ki/s + Kd*s/(1+Tf/s);
 G = K/(1+s*T);
@@ -25,6 +27,6 @@ Ld = Fd*Gd;
 Gryd = Ld/(1+Ld);
 
 hold on
-step(Gryd, 2)
-step(Gry, 2);
+step(Gryd, t)
+step(Gry, t);
 
