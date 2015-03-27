@@ -1,13 +1,14 @@
 %%
 %%Parameters 
-ki = 1;
-kp = 1;
-kd = 1;
+
+ki =0.1 ;
+kp = 10;
+kd = 0.1;
 Tf = 1;
 h = 0.01;
 K = 10;
 T = 1;
-st=10; %simulation time
+st=100; %simulation time
 
 
 %%
@@ -30,7 +31,7 @@ uk_1= 0;
 uk_2=0;
 ek_1=0;
 ek_2=0;
-r=1 %Rference
+r=1 ;%Rference
 
 
 %%
