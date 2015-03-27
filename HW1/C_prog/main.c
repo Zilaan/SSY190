@@ -12,42 +12,47 @@ const double K  = 10; // Plant gain
 const double T  = 1; // Time constant
 const double h  = 0.01; // Sampling time
 
-double c1 = (-8) * Tf;
-double c2 = (-2) * h + 4 * Tf;
-double c0 = 2 * (h + 2 * Tf);
-double ce1 = (-8) * Kd + 2 * h * h * Ki + (-8) * Kp * Tf;
-double ce2 = 4 * Kd + (h * Ki + (-2) * Kp) * (h + (-2) * Tf);
-double ce0 = 4 * Kd +(h * Ki + 2 * Kp) * (h + 2 * Tf);
+/**
+ * Numerator and denominator coefficients used
+ * to describe the PID transfer function
+ **/
+const double c1 = (-8) * Tf;
+const double c2 = (-2) * h + 4 * Tf;
+const double c0 = 2 * (h + 2 * Tf);
+const double ce1 = (-8) * Kd + 2 * h * h * Ki + (-8) * Kp * Tf;
+const double ce2 = 4 * Kd + (h * Ki + (-2) * Kp) * (h + (-2) * Tf);
+const double ce0 = 4 * Kd +(h * Ki + 2 * Kp) * (h + 2 * Tf);
 
 double plant(double a, double u, double y);
 double pid(double ek, double ek_1, double ek_2, double uk_1, double uk_2);
 
 int main(void) {
-	const double a = exp(h/T);
+	const double a = exp(h/T); // Constant used in the plant
 	double y = 0; // Initial state
 	double r; // Reference value
 	double uk, uk_1 = 0, uk_2 = 0; // Prevous control inputs
 	double ek, ek_1 = 0, ek_2 = 0; // Prevous error
-	char buffer[20];
+	char buffer[20]; // Buffer to store value from input file
 
-	FILE *fp; // Pointer to file
+	FILE *fpIn, *fpOut; // Pointer to input and output file
 
-	fp = fopen("setpointvalues.txt", "r"); // Open the file in read-only
+	fpIn = fopen("setpointvalues.txt", "r"); // Open the input file in read-only
+	fpOut = fopen("output.txt", "w"); // Open the output file in write-only
 
-	// Check if file exists
-	if(fp == NULL) {
-		printf("Something went wrong");
+	// Check if input file exists
+	if(fpIn == NULL) {
 		perror("Cannot open the file.\n");
 		exit(EXIT_FAILURE);
 	}
 
-    while ( fgets(buffer, 20, fp) != NULL) {
-		r = atof(buffer);
+    while ( fgets(buffer, 20, fpIn) != NULL) {
+		r = atof(buffer); // Convert string to double
 		printf("%lf\n", y);
-		ek = r - y; // Error
+		ek = r - y; // Calculate the error
 
 		uk = pid(ek, ek_1, ek_2, uk_1, uk_2); // Calculate control signal
 		y = plant(a, uk, y); // Update plant
+		fprintf(fpOut, "%lf\n", y); // Write output value to file
 
 		// Update signals
 		uk_2 = uk_1;
@@ -56,7 +61,8 @@ int main(void) {
 		ek_1 = ek;
 	}
 
-	fclose(fp); // Close the file
+	fclose(fpIn); // Close the input file
+	fclose(fpOut); // Close the output file
 	return 0;
 }
 
