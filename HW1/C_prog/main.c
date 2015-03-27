@@ -14,7 +14,7 @@ int main(void) {
 
 	FILE *fp; // Pointer to file
 
-	fp = fopen(setpointvalues.txt, "r"); // Open the file in read-only
+	fp = fopen("setpointvalues.txt", "r"); // Open the file in read-only
 
 	// Check if file exists
 	if(fp == NULL) {
