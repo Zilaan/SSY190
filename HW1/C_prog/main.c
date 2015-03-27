@@ -45,7 +45,7 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
-    while ( fgets(buffer, 20, fpIn) != NULL) {
+	while ( fgets(buffer, 20, fpIn) != NULL) {
 		r = atof(buffer); // Convert string to double
 		printf("%lf\n", y);
 		ek = r - y; // Calculate the error
