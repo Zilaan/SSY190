@@ -13,11 +13,10 @@ const double T  = 3; // Time constant
 const double h  = 0.1; // Sampling time
 
 
-double plant(double a, double u, double y);
+double plant( double u, double y);
 double pid(double ek, double ek_1, double ek_2, double uk_1, double uk_2);
 
 int main(void) {
-	double a = exp(h/T); // Constant used in the plant
 	double y = 0; // Initial state
 	double r; // Reference value
 	double uk, uk_1 = 0, uk_2 = 0; // Prevous control inputs
@@ -41,7 +40,7 @@ int main(void) {
 		ek = r - y; // Calculate the error
 
 		uk = pid(ek, ek_1, ek_2, uk_1, uk_2); // Calculate control signal
-		y = plant(a, uk, y); // Update plant
+		y = plant( uk, y); // Update plant
 		fprintf(fpOut, "%lf\n", y); // Write output value to file
 
 		// Update signals
@@ -56,7 +55,8 @@ int main(void) {
 	return 0;
 }
 
-double plant(double a, double u, double y) {
+double plant( double u, double y) {
+	double a = exp(h/T); // Constant used in the plant
 	return ( 1/a * (y + K * (a - 1) * u) );
 }
 
