@@ -4,30 +4,30 @@
 #include <math.h>
 
 // The different constans used in the PID
-const double Kp = 1; // Proportional gain
-const double Ki = 1; // Integral gain
-const double Kd = 1; // Derivative gain
-const double Tf = 1; // Filter constant
-const double K  = 10; // Plant gain
-const double T  = 1; // Time constant
-const double h  = 0.01; // Sampling time
+const double Kp = 4; // Proportional gain
+const double Ki = 0.5; // Integral gain
+const double Kd = 2; // Derivative gain
+const double Tf = 4; // Filter constant
+const double K  = 2; // Plant gain
+const double T  = 3; // Time constant
+const double h  = 0.1; // Sampling time
 
 /**
  * Numerator and denominator coefficients used
  * to describe the PID transfer function
  **/
-const double c1 = (-8) * Tf;
-const double c2 = (-2) * h + 4 * Tf;
-const double c0 = 2 * (h + 2 * Tf);
-const double ce1 = (-8) * Kd + 2 * h * h * Ki + (-8) * Kp * Tf;
-const double ce2 = 4 * Kd + (h * Ki + (-2) * Kp) * (h + (-2) * Tf);
-const double ce0 = 4 * Kd +(h * Ki + 2 * Kp) * (h + 2 * Tf);
+double c1 = (-8) * Tf;
+double c2 = (-2) * h + 4 * Tf;
+double c0 = 2 * (h + 2 * Tf);
+double ce1 = (-8) * Kd + 2 * h * h * Ki + (-8) * Kp * Tf;
+double ce2 = 4 * Kd + (h * Ki + (-2) * Kp) * (h + (-2) * Tf);
+double ce0 = 4 * Kd +(h * Ki + 2 * Kp) * (h + 2 * Tf);
 
 double plant(double a, double u, double y);
 double pid(double ek, double ek_1, double ek_2, double uk_1, double uk_2);
 
 int main(void) {
-	const double a = exp(h/T); // Constant used in the plant
+	double a = exp(h/T); // Constant used in the plant
 	double y = 0; // Initial state
 	double r; // Reference value
 	double uk, uk_1 = 0, uk_2 = 0; // Prevous control inputs
