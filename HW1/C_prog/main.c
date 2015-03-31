@@ -12,16 +12,6 @@ const double K  = 2; // Plant gain
 const double T  = 3; // Time constant
 const double h  = 0.1; // Sampling time
 
-/**
- * Numerator and denominator coefficients used
- * to describe the PID transfer function
- **/
-double c1 = (-8) * Tf;
-double c2 = (-2) * h + 4 * Tf;
-double c0 = 2 * (h + 2 * Tf);
-double ce1 = (-8) * Kd + 2 * h * h * Ki + (-8) * Kp * Tf;
-double ce2 = 4 * Kd + (h * Ki + (-2) * Kp) * (h + (-2) * Tf);
-double ce0 = 4 * Kd +(h * Ki + 2 * Kp) * (h + 2 * Tf);
 
 double plant(double a, double u, double y);
 double pid(double ek, double ek_1, double ek_2, double uk_1, double uk_2);
@@ -71,6 +61,16 @@ double plant(double a, double u, double y) {
 }
 
 double pid(double ek, double ek_1, double ek_2, double uk_1, double uk_2) {
-	return ( (1/c0) * ((-c1 * uk_1 - c2 * uk_2) + (ce0 * ek + ce1 * ek_1 + ce2 * ek_2)) );
+	/**
+	* Numerator and denominator coefficients used
+	* to describe the PID transfer function
+	**/
+	double c1 = (-8) * Tf;
+	double c2 = (-2) * h + 4 * Tf;
+	double c0 = 2 * (h + 2 * Tf);
+	double ce1 = (-8) * Kd + 2 * h * h * Ki + (-8) * Kp * Tf;
+	double ce2 = 4 * Kd + (h * Ki + (-2) * Kp) * (h + (-2) * Tf);
+	double ce0 = 4 * Kd +(h * Ki + 2 * Kp) * (h + 2 * Tf);
 
+	return ( (1/c0) * ((-c1 * uk_1 - c2 * uk_2) + (ce0 * ek + ce1 * ek_1 + ce2 * ek_2)) );
 }
