@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <time.h>
+#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
 
 sem_t s; // Declaration of Semaphore
 
@@ -44,11 +45,10 @@ FILE *fpIn, *fpOut;	// Pointer to input and output file
 
 void *controller(void *arg)
 {
-	struct timespec sleepValue;
+	time_t sec = 1;
+	long int nsec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 	double u;
-	sleepValue.tv_sec = 1;
-	sleepValue.tv_nsec = 0;
-	
+
 	while (fgets(buffer, 20, fpIn) != NULL) {
 		sem_wait(&s);
 
@@ -56,49 +56,48 @@ void *controller(void *arg)
 		printf("Thread 1 in critical section\n");
 		printf("Argument 1: %s\n", (char*)arg);
 		/* critical section */
-		
+
 		// Calculation of control signal
-		
+
 		r = atof(buffer);
-		
+
 		ek = r - y;
-		
+
 		u = ((1.0f / c0) * ((-c1 * uk_1 - c2 * uk_2) +
-		    (ce0 * ek + ce1 * ek_1 + ce2 * ek_2)));
-		
+					(ce0 * ek + ce1 * ek_1 + ce2 * ek_2)));
+
 		uk_2 = uk_1;
 		uk_1 = u;
 		ek_2 = ek_1;
 		ek_1 = ek;
-		
+
 		// Calculation of control signal
-		
+
 		sem_post(&s);
-		nanosleep(&sleepValue, NULL);	
+		nanosleep((struct timespec[]){{sec, nsec}}, NULL);
 	}
-	
-	return NULL;		
+
+	return NULL;
 }
 
 void *plant(void *arg)
 {
-	struct timespec sleepValue;
+	time_t sec = 1;
+	long int nsec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 	double y; 				// Most recent plant output
-	sleepValue.tv_sec = 2;
-	sleepValue.tv_nsec = 0;
-	
+
 	while (1) {
-		
+
 		sem_wait(&s);
-		
+
 		y = (1.0f / a * (y + K * (a - 1.0f) * u));
 		fprintf(fpOut, "%lf\n", y);
-		
+
 
 		sem_post(&s);
-		nanosleep(&sleepValue, NULL);	
+		nanosleep((struct timespec[]){{sec, nsec}}, NULL);
 	}
-	return NULL;		
+	return NULL;
 }
 
 int main()
@@ -106,27 +105,27 @@ int main()
 	pthread_t threadArray[2];	// array of thread IDs
 	int status;		// error code
 	pthread_attr_t threadAttribute;	// thread attribute
-	
+
 	y = 0.1;	// Initial value of y
-	
+
 	a = exp(hp/T);
-	
+
 	c1 = (-8.0f) * Tf;
 	c2 = (-2.0f) * h + 4.0f * Tf;
 	c0 = 2.0f * (h + 2.0f * Tf);
 	ce1 = (-8.0f) * Kd + 2.0f * h * h * Ki + (-8.0f) * Kp * Tf;
 	ce2 = 4.0f * Kd + (h * Ki + (-2.0f) * Kp) * (h + (-2.0f) * Tf);
 	ce0 = 4.0f * Kd + (h * Ki + 2.0f * Kp) * (h + 2.0f * Tf);
-	
+
 	fpIn = fopen("setpointvalues.txt", "r");	// Open the input file in read-only
 	fpOut = fopen("output.txt", "w");	// Open the output file in write-only
-	
+
 	// initialize semaphore s
 	// First argument is the address to the semaphore
 	// Second argument is if it is shared between threads in the same process (set to 0)
 	// or between separate processes (set to 1).
 	// Third argument is the initial value of the semaphore
-	sem_init(&s, 0, 1); 
+	sem_init(&s, 0, 1);
 
 	// initialize the thread attribute object
 	status = pthread_attr_init(&threadAttribute);
@@ -141,14 +140,14 @@ int main()
 	pthread_create(&threadArray[1], &threadAttribute, plant, (void *)&thread2Arg);
 
 	status = pthread_attr_destroy(&threadAttribute);	// destroy the attribute object
-	
+
 	// Wait for threads to finish
 	status = pthread_join(threadArray[0], NULL);
 	status = pthread_join(threadArray[1], NULL);
 
 	// Destroy semaphore s
 	sem_destroy(&s);
-	
+
 	fclose(fpIn);
 	fclose(fpOut);
 
