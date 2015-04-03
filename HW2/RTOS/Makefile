@@ -1,5 +1,4 @@
-all:
-	first second
+all: first second
 first:
 	gcc -pthread main.c -o main.out
 second:
