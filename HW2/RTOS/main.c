@@ -3,13 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
 
 sem_t s; // Declaration of Semaphore
 
 void *thread1(void *arg) {
-	struct timespec sleepValue;
-	sleepValue.tv_sec = 1;
-	sleepValue.tv_nsec = 0;
+	const long INTERVAL_MS = 1000 * NANO_SECOND_MULTIPLIER;
+	struct timespec sleepValue={0};
+	//sleepValue.tv_sec = 1;
+	sleepValue.tv_nsec = INTERVAL_MS;
 
 	while (1) {
 		sem_wait(&s);
@@ -26,9 +28,10 @@ void *thread1(void *arg) {
 }
 
 void *thread2(void *arg) {
-	struct timespec sleepValue;
-	sleepValue.tv_sec = 2;
-	sleepValue.tv_nsec = 0;
+	const long INTERVAL_MS = 2000 * NANO_SECOND_MULTIPLIER;
+	struct timespec sleepValue={0};
+	//sleepValue.tv_sec = 1;
+	sleepValue.tv_nsec = INTERVAL_MS;
 
 	while (1) {
 		sem_wait(&s);
