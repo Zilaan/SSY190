@@ -8,7 +8,8 @@
 sem_t s; // Declaration of Semaphore
 
 void *thread1(void *arg) {
-	long int sleepValue = 400 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
+	time_t sec = 1;
+	long int nsec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 
 	while (1) {
 		sem_wait(&s);
@@ -19,14 +20,14 @@ void *thread1(void *arg) {
 		/* critical section */
 
 		sem_post(&s);
-		nanosleep((struct timespec[]){{0,sleepValue}}, NULL);
-		//nanosleep(&sleepValue, NULL);
+		nanosleep((struct timespec[]){{sec, nsec}}, NULL);
 	}
 	return NULL;
 }
 
 void *thread2(void *arg) {
-	long int sleepValue = 800 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
+	time_t sec = 2;
+	long int nsec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 
 	while (1) {
 		sem_wait(&s);
@@ -37,8 +38,7 @@ void *thread2(void *arg) {
 		/* critical section */
 
 		sem_post(&s);
-		nanosleep((struct timespec[]){{0,sleepValue}}, NULL);
-		//nanosleep(&sleepValue, NULL);
+		nanosleep((struct timespec[]){{sec, nsec}}, NULL);
 	}
 	return NULL;
 }
