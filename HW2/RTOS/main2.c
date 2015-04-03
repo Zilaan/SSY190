@@ -90,8 +90,8 @@ void *plant(void *arg)
 
 		sem_wait(&s);
 		/* critical section */
-		printf("Thread 1 in critical section\n");
-		printf("Argument 1: %s\n", (char*)arg);
+		printf("Thread 2 in critical section\n");
+		printf("Argument 2: %s\n", (char*)arg);
 		/* critical section */
 
 		y = (1.0f / a * (y + K * (a - 1.0f) * u));
