@@ -6,8 +6,7 @@
 
 sem_t s; // Declaration of Semaphore
 
-void *thread1(void *arg)
-{
+void *thread1(void *arg) {
 	struct timespec sleepValue;
 	sleepValue.tv_sec = 1;
 	sleepValue.tv_nsec = 0;
@@ -26,8 +25,7 @@ void *thread1(void *arg)
 	return NULL;
 }
 
-void *thread2(void *arg)
-{
+void *thread2(void *arg) {
 	struct timespec sleepValue;
 	sleepValue.tv_sec = 2;
 	sleepValue.tv_nsec = 0;
@@ -46,8 +44,7 @@ void *thread2(void *arg)
 	return NULL;
 }
 
-int main()
-{
+int main() {
 	pthread_t threadArray[2];	// array of thread IDs
 	int status;		// error code
 	pthread_attr_t threadAttribute;	// thread attribute
@@ -79,5 +76,4 @@ int main()
 
 	// Destroy semaphore s
 	sem_destroy(&s);
-
 }
