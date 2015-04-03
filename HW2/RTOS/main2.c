@@ -46,7 +46,7 @@ FILE *fpIn, *fpOut;	// Pointer to input and output file
 void *controller(void *arg)
 {
 	time_t sec = 1;
-	long int nsec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
+	long int msec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 	double u;
 
 	while (fgets(buffer, 20, fpIn) != NULL) {
@@ -74,7 +74,7 @@ void *controller(void *arg)
 		// Calculation of control signal
 
 		sem_post(&s);
-		nanosleep((struct timespec[]){{sec, nsec}}, NULL);
+		nanosleep((struct timespec[]){{sec, msec}}, NULL);
 	}
 
 	return NULL;
@@ -83,7 +83,7 @@ void *controller(void *arg)
 void *plant(void *arg)
 {
 	time_t sec = 1;
-	long int nsec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
+	long int msec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 	double y; 				// Most recent plant output
 
 	while (1) {
@@ -95,7 +95,7 @@ void *plant(void *arg)
 
 
 		sem_post(&s);
-		nanosleep((struct timespec[]){{sec, nsec}}, NULL);
+		nanosleep((struct timespec[]){{sec, msec}}, NULL);
 	}
 	return NULL;
 }
