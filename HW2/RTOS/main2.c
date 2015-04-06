@@ -9,9 +9,9 @@
 
 sem_t s; // Declaration of Semaphore
 
-const double Kp = 4.0f;		// Proportional gain
-const double Ki = 0.5f;		// Integral gain
-const double Kd = 2.0f;		// Derivative gain
+const double Kp = 1.0f;		// Proportional gain
+const double Ki = 0.3f;		// Integral gain
+const double Kd = 0.5f;		// Derivative gain
 const double Tf = 4.0f;		// Filter constant
 const double K = 2.0f;		// Plant gain
 const double T = 3.0f;		// Time constant
@@ -36,6 +36,8 @@ double ek_1;
 double ek_2;
 double r;
 
+int i = 120;
+
 char buffer[20];
 
 FILE *fpIn, *fpOut;	// Pointer to input and output file
@@ -45,16 +47,15 @@ FILE *fpIn, *fpOut;	// Pointer to input and output file
 
 void *controller(void *arg)
 {
-	time_t sec = 1;
-	long int msec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
-	double u;
+	time_t sec = 0;
+	long int msec = 100 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
+	
 
 	while (fgets(buffer, 20, fpIn) != NULL) {
 		sem_wait(&s);
 
 		/* critical section */
-		printf("Thread 1 in critical section\n");
-		printf("Argument 1: %s\n", (char*)arg);
+
 		/* critical section */
 
 		// Calculation of control signal
@@ -65,6 +66,9 @@ void *controller(void *arg)
 
 		u = ((1.0f / c0) * ((-c1 * uk_1 - c2 * uk_2) +
 					(ce0 * ek + ce1 * ek_1 + ce2 * ek_2)));
+
+		printf("Controller\n");
+		//printf("Argument 1: %s\n", (char*)arg);
 
 		uk_2 = uk_1;
 		uk_1 = u;
@@ -82,19 +86,21 @@ void *controller(void *arg)
 
 void *plant(void *arg)
 {
-	time_t sec = 1;
-	long int msec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
-	double y; 				// Most recent plant output
+	time_t sec = 0;
+	long int msec = 10 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 
-	while (1) {
-
+	while (i) {
+		i--;
 		sem_wait(&s);
 		/* critical section */
-		printf("Thread 2 in critical section\n");
-		printf("Argument 2: %s\n", (char*)arg);
+
 		/* critical section */
 
 		y = (1.0f / a * (y + K * (a - 1.0f) * u));
+		
+		printf("Plant\n");
+		//printf("y: %f", y);
+		
 		fprintf(fpOut, "%lf\n", y);
 
 
@@ -123,7 +129,9 @@ int main()
 
 	fpIn = fopen("setpointvalues.txt", "r");	// Open the input file in read-only
 	fpOut = fopen("output.txt", "w");	// Open the output file in write-only
-
+	
+	
+	
 	// initialize semaphore s
 	// First argument is the address to the semaphore
 	// Second argument is if it is shared between threads in the same process (set to 0)
@@ -150,7 +158,7 @@ int main()
 	status = pthread_join(threadArray[1], NULL);
 
 	// Destroy semaphore s
-	sem_destroy(&s);
+	//sem_destroy(&s);
 
 	fclose(fpIn);
 	fclose(fpOut);
