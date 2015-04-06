@@ -1,4 +1,4 @@
-all: first second
+all: indent first second
 first:
 	gcc -pthread main.c -o main.out
 second:
