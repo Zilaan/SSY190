@@ -144,12 +144,15 @@ int main()
 	pthread_attr_setscope(&threadAttribute, PTHREAD_SCOPE_SYSTEM);
 
 	// Create two threads and store their IDs in array threadArray
+	
+	
+	char thread2Arg[] = "plant";
+	pthread_create(&threadArray[0], &threadAttribute, plant, (void *)&thread2Arg);
 
-	char thread1Arg[] = "Hello 1";
-	pthread_create(&threadArray[0], &threadAttribute, controller, (void *)&thread1Arg);
+	char thread1Arg[] = "controller";
+	pthread_create(&threadArray[1], &threadAttribute, controller, (void *)&thread1Arg);
 
-	char thread2Arg[] = "Hello 2";
-	pthread_create(&threadArray[1], &threadAttribute, plant, (void *)&thread2Arg);
+	
 
 	status = pthread_attr_destroy(&threadAttribute);	// destroy the attribute object
 
