@@ -8,9 +8,10 @@
 #define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
 
 sem_t s; // Declaration of Semaphore
+sem_t s_init;
 
 const double Kp = 1.0f;		// Proportional gain
-const double Ki = 0.3f;		// Integral gain
+const double Ki = 0.4f;		// Integral gain
 const double Kd = 0.5f;		// Derivative gain
 const double Tf = 4.0f;		// Filter constant
 const double K = 2.0f;		// Plant gain
@@ -36,6 +37,8 @@ double ek_1;
 double ek_2;
 double r;
 
+int referenceSize = 0;
+
 int i = 120;
 
 char buffer[20];
@@ -48,15 +51,13 @@ FILE *fpIn, *fpOut;	// Pointer to input and output file
 void *controller(void *arg)
 {
 	time_t sec = 0;
-	long int msec = 100 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
+	long int msec = 110 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 	
 
 	while (fgets(buffer, 20, fpIn) != NULL) {
+		
+		
 		sem_wait(&s);
-
-		/* critical section */
-
-		/* critical section */
 
 		// Calculation of control signal
 
@@ -67,6 +68,7 @@ void *controller(void *arg)
 		u = ((1.0f / c0) * ((-c1 * uk_1 - c2 * uk_2) +
 					(ce0 * ek + ce1 * ek_1 + ce2 * ek_2)));
 
+		//printf("Controller: %f\n", u);
 		printf("Controller\n");
 		//printf("Argument 1: %s\n", (char*)arg);
 
@@ -78,6 +80,7 @@ void *controller(void *arg)
 		// Calculation of control signal
 
 		sem_post(&s);
+		sem_post(&s_init);
 		nanosleep((struct timespec[]){{sec, msec}}, NULL);
 	}
 
@@ -88,22 +91,22 @@ void *plant(void *arg)
 {
 	time_t sec = 0;
 	long int msec = 10 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
-
+	//i = referenceSize;
 	while (i) {
-		i--;
+	
+		sem_wait(&s_init);
 		sem_wait(&s);
-		/* critical section */
-
-		/* critical section */
-
+		i--;
+		
 		y = (1.0f / a * (y + K * (a - 1.0f) * u));
 		
+		//printf("Plant: %f\n", u);
 		printf("Plant\n");
 		//printf("y: %f", y);
 		
 		fprintf(fpOut, "%lf\n", y);
 
-
+		//sem_post(&s_init);
 		sem_post(&s);
 		nanosleep((struct timespec[]){{sec, msec}}, NULL);
 	}
@@ -128,6 +131,16 @@ int main()
 	ce0 = 4.0f * Kd + (h * Ki + 2.0f * Kp) * (h + 2.0f * Tf);
 
 	fpIn = fopen("setpointvalues.txt", "r");	// Open the input file in read-only
+	
+	while(fgets(buffer, 20, fpIn) != NULL) {
+		referenceSize++;
+	}
+	
+	fclose(fpIn);
+	
+	printf("Number of reference points: %d\n", referenceSize);
+	
+	fpIn = fopen("setpointvalues.txt", "r");
 	fpOut = fopen("output.txt", "w");	// Open the output file in write-only
 	
 	
@@ -138,6 +151,7 @@ int main()
 	// or between separate processes (set to 1).
 	// Third argument is the initial value of the semaphore
 	sem_init(&s, 0, 1);
+	sem_init(&s_init, 0, 0);
 
 	// initialize the thread attribute object
 	status = pthread_attr_init(&threadAttribute);
@@ -158,7 +172,7 @@ int main()
 	status = pthread_join(threadArray[1], NULL);
 
 	// Destroy semaphore s
-	//sem_destroy(&s);
+	sem_destroy(&s);
 
 	fclose(fpIn);
 	fclose(fpOut);
