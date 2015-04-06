@@ -106,7 +106,7 @@ void *plant(void *arg)
 		
 		fprintf(fpOut, "%lf\n", y);
 
-		//sem_post(&s_init);
+		sem_post(&s_init);
 		sem_post(&s);
 		nanosleep((struct timespec[]){{sec, msec}}, NULL);
 	}
