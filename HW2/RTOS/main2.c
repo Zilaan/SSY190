@@ -50,8 +50,8 @@ FILE *fpIn, *fpOut;	// Pointer to input and output file
 
 void *controller(void *arg)
 {
-	time_t sec = 0;
-	long int msec = 110 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
+	time_t sec = 1;
+	long int msec = 0 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 	
 
 	while (fgets(buffer, 20, fpIn) != NULL) {
@@ -90,7 +90,7 @@ void *controller(void *arg)
 void *plant(void *arg)
 {
 	time_t sec = 0;
-	long int msec = 10 * NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
+	long int msec = 100* NANO_SECOND_MULTIPLIER; // Sleep time in microseconds
 	//i = referenceSize;
 	while (i) {
 	
